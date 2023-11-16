@@ -7,6 +7,7 @@ import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.serialization.json.Json
+import me.tomasan7.chatappserver.Message
 import me.tomasan7.chatappserver.Storage
 import me.tomasan7.chatappserver.getUsername
 import java.time.Duration
@@ -31,6 +32,12 @@ fun Application.configureSockets()
             {
                 for (frame in incoming)
                 {
+                    if (frame is Frame.Text)
+                    {
+                        val message = Message(username, frame.readText())
+                        Storage.messages.add(message)
+                        Storage.connections.filterKeys { it != username }.values.forEach { it.session.sendSerialized(message) }
+                    }
                 }
             }
             catch (e: ClosedReceiveChannelException)

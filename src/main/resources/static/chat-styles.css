@@ -4,6 +4,7 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    color: white;
 }
 
 button:hover, .img-btn:hover
@@ -52,7 +53,6 @@ button:hover, .img-btn:hover
 {
     background: none;
     border: none;
-    color: white;
     flex-grow: 1;
 }
 
@@ -61,7 +61,6 @@ button:hover, .img-btn:hover
     background: none;
     outline: none;
     border: none;
-    color: white;
     flex-grow: 1;
 }
 
@@ -94,9 +93,10 @@ button:hover, .img-btn:hover
     border: none;
     border-radius: 20px;
     background-color: #00a783;
-    color: white;
 }
 /* endregion */
+
+/* region MESSAGES */
 
 #messages
 {
@@ -104,13 +104,37 @@ button:hover, .img-btn:hover
     height: 100%;
     padding: 10px;
     flex-direction: column;
+    row-gap: 15px;
     background-image: url("https://theabbie.github.io/blog/assets/official-whatsapp-background-image.jpg");
     background-color: #081419;
     color: white;
 }
 
+.message-bubble
+{
+    display: inline-flex;
+    flex-direction: column;
+    row-gap: 5px;
+    padding: 10px;
+    background-color: #1d282f;
+    border-radius: 10px;
+}
+
+.message-text
+{
+    margin-left: 5px;
+}
+
 .message-author
 {
-    color: #00a783;
-    margin-right: 5px;
+    color: red;
+    font-weight: bold;
 }
+
+.message-time
+{
+    color: #728189;
+    align-self: end;
+}
+
+/* endregion */

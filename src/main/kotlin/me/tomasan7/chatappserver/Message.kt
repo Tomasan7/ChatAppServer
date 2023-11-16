@@ -1,12 +1,13 @@
 package me.tomasan7.chatappserver
 
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
+import java.time.Instant
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 @Serializable
 data class Message(
     val author: String,
     val content: String,
-    val datetime: Instant = Clock.System.now(),
+    val timestamp: String = DateTimeFormatter.ofPattern("HH:mm:ss").format(LocalTime.now()),
 )

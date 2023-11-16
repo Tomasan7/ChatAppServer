@@ -36,17 +36,5 @@ fun Application.configureRouting()
             call.response.cookies.append(Cookie("username", username))
             call.respondRedirect("/")
         }
-
-        post("/send-message") {
-            val username = call.getUsername() ?: return@post call.respondText("Missing username")
-            val messageContent = call.receiveParameters()["message"] ?: return@post call.respond("Missing message")
-
-            val message = Message(username, messageContent)
-
-            println("Received message: $message")
-            Storage.messages.add(message)
-            Storage.connections.filter { it.key != username }.forEach { it.value.session.sendSerialized(message) }
-            call.respondRedirect("/")
-        }
     }
 }

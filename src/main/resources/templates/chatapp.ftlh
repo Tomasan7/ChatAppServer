@@ -9,25 +9,29 @@
 
 <div id="messages">
     <#list messages as message>
-        <p class="message"><span class="message-author">${message.author}: </span>${message.content}</p>
+        <div class="message-bubble">
+            <p class="message-author">${message.author}</p>
+            <p class="message-text">${message.content}</p>
+            <p class="message-time">${message.timestamp}</p>
+        </div>
     </#list>
 </div>
 
 
 <div id="compose-bar">
-    <form id="message-form" class="hide" action="/send-message" method="post"></form>
     <div id="message-bar">
         <button id="emoji-btn">
             <span class="material-icons">mood</span>
         </button>
-        <input form="message-form" id="message-field" name="message" placeholder="Message">
+        <input id="message-field" name="message" placeholder="Message">
         <!-- Workaround: https://stackoverflow.com/questions/572768/styling-an-input-type-file-button/25825731#25825731-->
         <label id="image-input-label" class="img-btn">
-            <input id="image-input" class="hide" form="message-form" type="file" name="image">
+            <!-- Not supported for now -->
+            <input id="image-input" class="hide" type="file" name="image">
             <span class="material-icons">image</span>
         </label>
     </div>
-    <button id="send-btn" form="message-form" type="submit">
+    <button id="send-btn" type="submit" onclick="onSend()">
         <span class="material-icons">send</span>
     </button>
 </div>
