@@ -1,0 +1,116 @@
+/* region GLOBAL */
+*
+{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+button:hover, .img-btn:hover
+{
+    cursor: pointer;
+}
+
+.hide
+{
+    display: none;
+}
+/* endregion */
+
+/* region COMPOSE BAR */
+#compose-bar, #message-bar
+{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#compose-bar
+{
+    position: fixed;
+    height: 40px;
+    width: 100%;
+    bottom: 5px;
+    right: 0;
+    left: 0;
+    padding: 0 10px;
+    column-gap: 5px;
+    background-image: url("https://theabbie.github.io/blog/assets/official-whatsapp-background-image.jpg");
+}
+
+#message-bar
+{
+    height: 100%;
+    padding: 5px 10px;
+    column-gap: 10px;
+    flex-grow: 1;
+    background-color: #202c33;
+    border-radius: 20px;
+}
+
+#message-field
+{
+    background: none;
+    border: none;
+    color: white;
+    flex-grow: 1;
+}
+
+#message-field
+{
+    background: none;
+    outline: none;
+    border: none;
+    color: white;
+    flex-grow: 1;
+}
+
+#emoji-btn
+{
+    height: 100%;
+    background: none;
+    border: none;
+    width: auto;
+}
+
+#message-bar span.material-icons
+{
+    color: #85959f;
+}
+
+#image-input-label
+{
+    display: inline-flex;
+    align-items: center;
+    height: 100%;
+}
+
+/* I would like it to be a circle as big as parent's height, but that is hard */
+#send-btn
+{
+    height: 100%;
+    width: 40px; /* CONSTANT, should be the same as height (100% of parent's height) */
+    padding: 5px 5px;
+    border: none;
+    border-radius: 20px;
+    background-color: #00a783;
+    color: white;
+}
+/* endregion */
+
+#messages
+{
+    display: flex;
+    height: 100%;
+    padding: 10px;
+    flex-direction: column;
+    background-image: url("https://theabbie.github.io/blog/assets/official-whatsapp-background-image.jpg");
+    background-color: #081419;
+    color: white;
+}
+
+.message-author
+{
+    color: #00a783;
+    margin-right: 5px;
+}
