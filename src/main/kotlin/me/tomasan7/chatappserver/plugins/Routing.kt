@@ -9,32 +9,69 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.routing.get
 import io.ktor.server.websocket.*
+import io.ktor.util.logging.*
+import io.ktor.websocket.*
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import me.tomasan7.chatappserver.ChatAppSession
 import me.tomasan7.chatappserver.Message
 import me.tomasan7.chatappserver.Storage
-import me.tomasan7.chatappserver.getUsername
-import java.io.File
+import org.slf4j.LoggerFactory
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+
+private val TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss")
+private val chatAppSessionLogger = LoggerFactory.getLogger(ChatAppSession::class.java)
+
+fun ApplicationCall.getUsername() = request.cookies["username"]
 
 fun Application.configureRouting()
 {
     routing {
         staticResources("/static", "static")
+        staticResources("/", "pages")
 
         get("/") {
-            val username = call.getUsername() ?: return@get call.respondRedirect("/welcome")
-            call.respond(FreeMarkerContent("chatapp.ftlh", mapOf("messages" to Storage.messages, "username" to username)))
-        }
+            val username = call.getUsername() ?: return@get call.respondRedirect("/welcome.html")
 
-        get("/welcome")
-        {
-            call.respondFile(File(this::class.java.getResource("/welcome.html").toURI()))
+            call.respondTemplate("chatapp.ftlh", mapOf("messages" to Storage.messages, "username" to username))
         }
 
         post("/login") {
             val formParams = call.receiveParameters()
-            val username = formParams["username"] ?: return@post call.respondText("Missing username")
+            val username = formParams["username"] ?: return@post call.respondText("Missing username", status = HttpStatusCode.BadRequest)
 
             call.response.cookies.append(Cookie("username", username))
             call.respondRedirect("/")
+        }
+
+        webSocket("/messages-live") {
+            val username = call.getUsername() ?: return@webSocket close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "Missing username"))
+            val chatappSession = ChatAppSession(username, this)
+            Storage.connections[username] = chatappSession
+            chatAppSessionLogger.info("$username connected")
+
+            try
+            {
+                for (frame in incoming)
+                {
+                    if (frame !is Frame.Text)
+                        continue
+
+                    val message = Message(username, frame.readText(), TIME_FORMATTER.format(LocalTime.now()))
+                    Storage.messages.add(message)
+                    Storage.connections.values.forEach { it.session.sendSerialized(message) }
+                }
+            }
+            catch (e: ClosedReceiveChannelException)
+            {
+                chatAppSessionLogger.info("$username disconnected (${closeReason.await()})")
+                Storage.connections.remove(username)
+            }
+            catch (e: Throwable)
+            {
+                chatAppSessionLogger.error(e)
+                Storage.connections.remove(username)
+            }
         }
     }
 }
