@@ -35,15 +35,20 @@ socket.addEventListener('close', (event) =>
 
 let messagesEle = document.getElementById("messages");
 
+messagesEle.querySelectorAll(".message-author").forEach(authorEle => authorEle.style.color = stringToColor(authorEle.textContent));
+
 function appendMessage(message)
 {
     const messageBubble = document.createElement("div");
     messageBubble.classList.add("message-bubble");
 
+    if (message.author === getCookie("username"))
+        messageBubble.classList.add("message-bubble-self");
+
     const authorEle = document.createElement("p");
     authorEle.style.color = stringToColor(message.author);
     authorEle.classList.add("message-author");
-    authorEle.textContent = message.author;
+    authorEle.textContent = escapeHtml(message.author);
     messageBubble.appendChild(authorEle);
 
     const textEle = document.createElement("p");
@@ -59,9 +64,10 @@ function appendMessage(message)
     messagesEle.appendChild(messageBubble);
 }
 
-const messageField = document.getElementById("message-field")
+const messageFieldEle = document.getElementById("message-field")
+messageFieldEle.focus()
 
-messageField.addEventListener('keyup', function(event) {
+messageFieldEle.addEventListener('keyup', function(event) {
     if (event.key === "Enter") {
         onSend();
     }
@@ -69,7 +75,7 @@ messageField.addEventListener('keyup', function(event) {
 
 function onSend()
 {
-    let messageContent = messageField.value;
+    let messageContent = messageFieldEle.value;
 
     if (isBlank(messageContent))
         return
@@ -82,9 +88,9 @@ function onSend()
         timestamp: getCurrentTimestamp()
     }
 
-    appendMessage(message)
+    //appendMessage(message)
 
-    messageField.value = ""
+    messageFieldEle.value = ""
 }
 
 function escapeHtml(unsafe)

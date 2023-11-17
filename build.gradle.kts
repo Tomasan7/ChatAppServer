@@ -15,7 +15,7 @@ application {
     mainClass.set("me.tomasan7.ApplicationKt")
 
     val isDevelopment: Boolean = project.ext.has("development")
-    //applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
 }
 
 repositories {

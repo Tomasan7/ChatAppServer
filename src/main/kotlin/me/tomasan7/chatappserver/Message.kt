@@ -9,5 +9,5 @@ import java.time.format.DateTimeFormatter
 data class Message(
     val author: String,
     val content: String,
-    val timestamp: String = DateTimeFormatter.ofPattern("HH:mm:ss").format(LocalTime.now()),
+    val timestamp: String,
 )

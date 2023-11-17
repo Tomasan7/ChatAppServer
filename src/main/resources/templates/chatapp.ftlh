@@ -9,7 +9,7 @@
 
 <div id="messages">
     <#list messages as message>
-        <div class="message-bubble">
+        <div class="message-bubble${(message.author == username)?string(" message-bubble-self", "")}">
             <p class="message-author">${message.author}</p>
             <p class="message-text">${message.content}</p>
             <p class="message-time">${message.timestamp}</p>
@@ -23,7 +23,7 @@
         <button id="emoji-btn">
             <span class="material-icons">mood</span>
         </button>
-        <input id="message-field" name="message" placeholder="Message">
+        <input id="message-field" name="message" placeholder="Message" autocomplete="off">
         <!-- Workaround: https://stackoverflow.com/questions/572768/styling-an-input-type-file-button/25825731#25825731-->
         <label id="image-input-label" class="img-btn">
             <!-- Not supported for now -->

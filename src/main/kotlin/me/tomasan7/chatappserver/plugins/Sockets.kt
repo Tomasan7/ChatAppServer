@@ -11,6 +11,10 @@ import me.tomasan7.chatappserver.Message
 import me.tomasan7.chatappserver.Storage
 import me.tomasan7.chatappserver.getUsername
 import java.time.Duration
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+
+val dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
 
 fun Application.configureSockets()
 {
@@ -34,9 +38,10 @@ fun Application.configureSockets()
                 {
                     if (frame is Frame.Text)
                     {
-                        val message = Message(username, frame.readText())
+                        val message = Message(username, frame.readText(), dateTimeFormatter.format(
+                            LocalTime.now()))
                         Storage.messages.add(message)
-                        Storage.connections.filterKeys { it != username }.values.forEach { it.session.sendSerialized(message) }
+                        Storage.connections.values.forEach { it.session.sendSerialized(message) }
                     }
                 }
             }
