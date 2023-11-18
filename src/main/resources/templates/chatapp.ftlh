@@ -18,7 +18,7 @@
     </div>
 </header>
 
-<div id="messages">
+<main id="messages">
     <#list messages as message>
         <div class="message-bubble${(message.author == username)?string(" message-bubble-self", "")}">
             <p class="message-author">${message.author}</p>
@@ -26,8 +26,7 @@
             <p class="message-time">${message.timestamp}</p>
         </div>
     </#list>
-</div>
-
+</main>
 
 <div id="compose-bar">
     <div id="message-bar">

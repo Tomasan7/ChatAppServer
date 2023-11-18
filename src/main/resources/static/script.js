@@ -37,6 +37,7 @@ messageFieldEle.addEventListener('keyup', event =>
 
 let messagesEle = document.getElementById("messages");
 messagesEle.querySelectorAll(".message-author").forEach(authorEle => authorEle.style.color = stringToColor(authorEle.textContent));
+messagesEle.scrollTop = messagesEle.scrollHeight;
 
 function appendMessage(message)
 {
@@ -63,6 +64,8 @@ function appendMessage(message)
     messageBubble.appendChild(timeEle);
 
     messagesEle.appendChild(messageBubble);
+    if (message.author === getCookie("username"))
+        messagesEle.scrollTop = messagesEle.scrollHeight;
 }
 
 function onSend()
