@@ -12,6 +12,8 @@ import io.ktor.server.websocket.*
 import io.ktor.util.logging.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import me.tomasan7.chatappserver.ChatAppSession
 import me.tomasan7.chatappserver.Message
 import me.tomasan7.chatappserver.Storage
@@ -33,7 +35,13 @@ fun Application.configureRouting()
         get("/") {
             val username = call.getUsername() ?: return@get call.respondRedirect("/welcome.html")
 
-            call.respondTemplate("chatapp.ftlh", mapOf("messages" to Storage.messages, "username" to username))
+            val model = mapOf(
+                "messages" to Storage.messages,
+                "username" to username,
+                "onlineUsers" to Storage.connections.keys.filter { it != username }
+            )
+
+            call.respondTemplate("chatapp.ftlh", model)
         }
 
         post("/login") {
@@ -49,6 +57,7 @@ fun Application.configureRouting()
             val chatappSession = ChatAppSession(username, this)
             Storage.connections[username] = chatappSession
             chatAppSessionLogger.info("$username connected")
+            Storage.connections.filterKeys { it != username }.values.forEach { it.session.send(constructJoinWsMessage(username)) }
 
             try
             {
@@ -59,12 +68,15 @@ fun Application.configureRouting()
 
                     val message = Message(username, frame.readText(), TIME_FORMATTER.format(LocalTime.now()))
                     Storage.messages.add(message)
-                    Storage.connections.values.forEach { it.session.sendSerialized(message) }
+                    Storage.connections.values.forEach { it.session.send(constructMessageWsMessage(message)) }
                 }
             }
             catch (e: ClosedReceiveChannelException)
             {
                 chatAppSessionLogger.info("$username disconnected (${closeReason.await()})")
+                Storage.connections.filterKeys { it != username }.values.forEach { it.session.send(
+                    constructLeaveWsMessage(username)
+                ) }
                 Storage.connections.remove(username)
             }
             catch (e: Throwable)
@@ -75,3 +87,9 @@ fun Application.configureRouting()
         }
     }
 }
+
+fun constructJoinWsMessage(username: String) = "JOIN\n$username"
+
+fun constructLeaveWsMessage(username: String) = "LEAVE\n$username"
+
+fun constructMessageWsMessage(message: Message) = "MESSAGE\n${Json.encodeToString(message)}"

@@ -18,6 +18,38 @@ button:hover, .img-btn:hover
 }
 /* endregion */
 
+/* region HEADER */
+
+header
+{
+    position: relative;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    display: flex;
+    padding: 0 5%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1e2930;
+}
+
+
+#online-users
+{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    flex-wrap: wrap-reverse;
+    align-items: center;
+    column-gap: 10px;
+    font-size: 0.8em;
+    justify-content: flex-start;
+}
+
+/* endregion */
+
 /* region COMPOSE BAR */
 #compose-bar, #message-bar
 {
@@ -29,7 +61,7 @@ button:hover, .img-btn:hover
 #compose-bar
 {
     position: fixed;
-    height: 40px;
+    height: 50px;
     width: 100%;
     bottom: 15px;
     right: 0;
@@ -46,7 +78,7 @@ button:hover, .img-btn:hover
     column-gap: 10px;
     flex-grow: 1;
     background-color: #202c33;
-    border-radius: 20px;
+    border-radius: 25px;
 }
 
 #message-field
@@ -88,10 +120,10 @@ button:hover, .img-btn:hover
 #send-btn
 {
     height: 100%;
-    width: 40px; /* CONSTANT, should be the same as height (100% of parent's height) */
+    width: 50px; /* CONSTANT, should be the same as height (100% of parent's height) */
     padding: 5px 5px;
     border: none;
-    border-radius: 20px;
+    border-radius: 25px;
     background-color: #00a783;
 }
 /* endregion */

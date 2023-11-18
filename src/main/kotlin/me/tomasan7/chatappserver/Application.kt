@@ -12,7 +12,7 @@ fun main()
     val port = System.getenv("PORT")?.toInt() ?: 8080
     val host = System.getenv("BIND_ADDRESS") ?: "0.0.0.0"
 
-    embeddedServer(Netty, port = port, host = host, module = Application::module)
+    embeddedServer(Netty, port = port, host = host, module = Application::module, watchPaths = listOf("resources"))
         .start(wait = true)
 }
 

@@ -1,11 +1,22 @@
 <html lang="en">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/chat-styles.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <script src="/static/script.js" defer></script>
     <title>Chat app</title>
 </head>
 <body>
+
+<header>
+    <h1>Chat app</h1>
+    <h1 id="username" title="Click to logout">${username}</h1>
+    <div id="online-users">
+        <#list onlineUsers as user>
+            <p class="online-user">${user}</p>
+        </#list>
+    </div>
+</header>
 
 <div id="messages">
     <#list messages as message>

@@ -6,8 +6,21 @@ const socket = new WebSocket(`${protocol}//${host}:${port}/messages-live`);
 
 socket.addEventListener('message', (event) =>
 {
-    const message = JSON.parse(event.data);
-    appendMessage(message)
+    const wsMessage = event.data;
+    const split = wsMessage.split("\n");
+
+    switch (split[0])
+    {
+        case "JOIN":
+            onUserJoin(split[1]);
+            break;
+        case "LEAVE":
+            onUserLeave(split[1]);
+            break;
+        case "MESSAGE":
+            appendMessage(JSON.parse(split[1]));
+            break;
+    }
 });
 
 socket.addEventListener('error', event => console.error('WebSocket error:', event))
@@ -63,6 +76,25 @@ function onSend()
     messageFieldEle.value = ""
 }
 
+const onlineUsersEle = document.getElementById("online-users");
+
+function onUserJoin(username)
+{
+    const userEle = document.createElement("p");
+    userEle.classList.add("online-user");
+    userEle.textContent = username;
+    onlineUsersEle.appendChild(userEle);
+}
+
+function onUserLeave(username)
+{
+    onlineUsersEle.querySelectorAll(".online-user").forEach(userEle =>
+    {
+        if (userEle.textContent === username)
+            userEle.remove();
+    });
+}
+
 function escapeHtml(unsafe)
 {
     return unsafe.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
@@ -84,7 +116,7 @@ function stringToColor(inputString)
 {
     // Simple hash function to convert the string into a numeric value
     let hash = 0;
-    for (const i = 0; i < inputString.length; i++)
+    for (let i = 0; i < inputString.length; i++)
     {
         hash = inputString.charCodeAt(i) + ((hash << 5) - hash);
     }
