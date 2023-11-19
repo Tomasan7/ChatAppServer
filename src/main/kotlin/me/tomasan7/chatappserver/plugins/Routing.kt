@@ -29,60 +29,81 @@ fun ApplicationCall.getUsername() = request.cookies["username"]
 fun Application.configureRouting()
 {
     routing {
-        staticResources("/static", "static")
-        staticResources("/", "pages")
 
         get("/") {
-            val username = call.getUsername() ?: return@get call.respondRedirect("/welcome.html")
-
-            val model = mapOf(
-                "messages" to Storage.messages,
-                "username" to username,
-                "onlineUsers" to Storage.connections.keys.filter { it != username }
-            )
-
-            call.respondTemplate("chatapp.ftlh", model)
+            call.respondRedirect("/chatapp/")
         }
 
-        post("/login") {
-            val formParams = call.receiveParameters()
-            val username = formParams["username"] ?: return@post call.respondText("Missing username", status = HttpStatusCode.BadRequest)
+        route("chatapp") {
+            staticResources("/static", "static")
+            staticResources("/", "pages")
 
-            call.response.cookies.append(Cookie("username", username))
-            call.respondRedirect("/")
-        }
+            get("/") {
+                val username = call.getUsername() ?: return@get call.respondRedirect("/chatapp/welcome.html")
 
-        webSocket("/messages-live") {
-            val username = call.getUsername() ?: return@webSocket close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "Missing username"))
-            val chatappSession = ChatAppSession(username, this)
-            Storage.connections[username] = chatappSession
-            chatAppSessionLogger.info("$username connected")
-            Storage.connections.filterKeys { it != username }.values.forEach { it.session.send(constructJoinWsMessage(username)) }
+                val model = mapOf(
+                    "messages" to Storage.messages,
+                    "username" to username,
+                    "onlineUsers" to Storage.connections.keys.filter { it != username }
+                )
 
-            try
-            {
-                for (frame in incoming)
-                {
-                    if (frame !is Frame.Text)
-                        continue
+                call.respondTemplate("chatapp.ftlh", model)
+            }
 
-                    val message = Message(username, frame.readText(), TIME_FORMATTER.format(LocalTime.now()))
-                    Storage.messages.add(message)
-                    Storage.connections.values.forEach { it.session.send(constructMessageWsMessage(message)) }
+            post("/login") {
+                val formParams = call.receiveParameters()
+                val username = formParams["username"] ?: return@post call.respondText(
+                    "Missing username",
+                    status = HttpStatusCode.BadRequest
+                )
+
+                call.response.cookies.append(Cookie("username", username))
+                call.respondRedirect("/chatapp/")
+            }
+
+            webSocket("/messages-live") {
+                val username = call.getUsername() ?: return@webSocket close(
+                    CloseReason(CloseReason.Codes.VIOLATED_POLICY, "Missing username")
+                )
+                val chatappSession = ChatAppSession(username, this)
+                Storage.connections[username] = chatappSession
+                chatAppSessionLogger.info("$username connected")
+                Storage.connections.filterKeys { it != username }.values.forEach {
+                    it.session.send(constructJoinWsMessage(username))
                 }
-            }
-            catch (e: ClosedReceiveChannelException)
-            {
-                chatAppSessionLogger.info("$username disconnected (${closeReason.await()})")
-                Storage.connections.filterKeys { it != username }.values.forEach { it.session.send(
-                    constructLeaveWsMessage(username)
-                ) }
-                Storage.connections.remove(username)
-            }
-            catch (e: Throwable)
-            {
-                chatAppSessionLogger.error(e)
-                Storage.connections.remove(username)
+
+                suspend fun disconnect()
+                {
+                    chatAppSessionLogger.info("$username disconnected (${closeReason.await()})")
+                    Storage.connections.filterKeys { it != username }.values.forEach {
+                        it.session.send(constructLeaveWsMessage(username))
+                    }
+                    Storage.connections.remove(username)
+                }
+
+                try
+                {
+                    for (frame in incoming)
+                    {
+                        if (frame !is Frame.Text)
+                            continue
+
+                        val message = Message(username, frame.readText(), TIME_FORMATTER.format(LocalTime.now()))
+                        Storage.messages.add(message)
+                        Storage.connections.values.forEach { it.session.send(constructMessageWsMessage(message)) }
+                    }
+
+                    disconnect()
+                }
+                catch (e: ClosedReceiveChannelException)
+                {
+                    disconnect()
+                }
+                catch (e: Throwable)
+                {
+                    chatAppSessionLogger.error(e)
+                    Storage.connections.remove(username)
+                }
             }
         }
     }
