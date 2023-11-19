@@ -1,8 +1,16 @@
 const host = window.location.hostname;
 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 const port = window.location.port ? window.location.port : 80;
+const path = window.location.pathname.replace(/^\/|\/$/g, '')
 
-const socket = new WebSocket(`${protocol}//${host}:${port}/messages-live`);
+let url
+
+if (path === "")
+    url = `${protocol}//${host}:${port}/messages-live`
+else
+    url = `${protocol}//${host}:${port}/${path}/messages-live`
+
+const socket = new WebSocket(url);
 
 socket.addEventListener('message', (event) =>
 {
