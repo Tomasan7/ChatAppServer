@@ -1,6 +1,8 @@
 const host = window.location.hostname;
 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-const port = window.location.port ? window.location.port : 80;
+let port = window.location.port
+if (port === "")
+    port = protocol === 'wss:' ? 443 : 80
 const path = window.location.pathname.replace(/^\/|\/$/g, '')
 
 let url
